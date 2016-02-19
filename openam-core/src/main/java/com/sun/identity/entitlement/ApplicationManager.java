@@ -28,6 +28,8 @@
  */
 package com.sun.identity.entitlement;
 
+import static org.forgerock.openam.utils.Time.*;
+
 import com.sun.identity.entitlement.util.SearchFilter;
 import com.sun.identity.entitlement.util.SearchFilter.Operator;
 import com.sun.identity.shared.debug.Debug;
@@ -363,7 +365,7 @@ public final class ApplicationManager {
             }
         }
 
-        Date date = new Date();
+        Date date = newDate();
         Set<Principal> principals = adminSubject.getPrincipals();
         String principalName = ((principals != null) && !principals.isEmpty()) ?
             principals.iterator().next().getName() : null;
