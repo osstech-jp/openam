@@ -37,9 +37,9 @@ import org.forgerock.oauth2.core.exceptions.UnauthorizedClientException;
  */
 public abstract class GrantTypeHandler {
 
-    private final OAuth2ProviderSettingsFactory providerSettingsFactory;
-    private final OAuth2UrisFactory urisFactory;
-    private final ClientAuthenticator clientAuthenticator;
+    protected final OAuth2ProviderSettingsFactory providerSettingsFactory;
+    protected final OAuth2UrisFactory urisFactory;
+    protected final ClientAuthenticator clientAuthenticator;
 
     protected GrantTypeHandler(OAuth2ProviderSettingsFactory providerSettingsFactory,
             OAuth2UrisFactory urisFactory, ClientAuthenticator clientAuthenticator) {
