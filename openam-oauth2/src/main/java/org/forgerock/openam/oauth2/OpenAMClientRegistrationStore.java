@@ -34,6 +34,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import org.forgerock.i18n.LocalizedIllegalArgumentException;
 import org.forgerock.openam.core.RealmInfo;
 import org.forgerock.oauth2.core.exceptions.ClientAuthenticationFailureFactory;
 import org.forgerock.services.context.Context;
@@ -139,10 +140,7 @@ public class OpenAMClientRegistrationStore implements OpenIdConnectClientRegistr
             } else {
                 throw failureFactory.getException(request, "Client authentication failed");
             }
-        } catch (SSOException e) {
-            logger.error("ClientVerifierImpl::Unable to get client AMIdentity: ", e);
-            throw failureFactory.getException(request, "Client authentication failed");
-        } catch (IdRepoException e) {
+        } catch (SSOException | IdRepoException | LocalizedIllegalArgumentException e) {
             logger.error("ClientVerifierImpl::Unable to get client AMIdentity: ", e);
             throw failureFactory.getException(request, "Client authentication failed");
         }
