@@ -1387,4 +1387,9 @@ public interface Constants {
      * Property that allows the AM_ACCESS_ATTEMPT event name to be audited.
      */
     public static final String AUDIT_AM_ACCESS_ATTEMPT_ENABLED = "org.forgerock.openam.audit.access.attempt.enabled";
+
+    /**
+     * Property to enable capturing trace-level messages from Log4J world when in message-level debug mode.
+     */
+    public static final String ENABLE_TRACE_IN_MESSAGE_MODE = "org.forgerock.openam.slf4j.enableTraceInMessage";
 }

@@ -24,6 +24,7 @@ import static com.sun.identity.entitlement.opensso.EntitlementService.CONFIG_RES
 import static com.sun.identity.entitlement.opensso.EntitlementService.CONFIG_SAVE_INDEX_IMPL;
 import static com.sun.identity.entitlement.opensso.EntitlementService.CONFIG_SEARCH_INDEX_IMPL;
 import static com.sun.identity.entitlement.opensso.EntitlementService.CONFIG_SUBJECTS;
+import static org.forgerock.openam.utils.Time.*;
 
 import com.iplanet.sso.SSOToken;
 import com.sun.identity.entitlement.Application;
@@ -44,7 +45,6 @@ import org.forgerock.util.Reject;
 import javax.security.auth.Subject;
 import java.security.AccessController;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -357,7 +357,7 @@ public final class EntitlementUtils {
             return Long.parseLong(getAttribute(data, attributeName));
         } catch (NumberFormatException e) {
             PolicyConstants.DEBUG.error("EntitlementService.getDateAttributeAsLong", e);
-            return new Date().getTime();
+            return newDate().getTime();
         }
     }
 

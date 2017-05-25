@@ -30,6 +30,8 @@ package com.iplanet.dpro.session.service;
 
 import static org.forgerock.openam.audit.AuditConstants.EventName.*;
 import static org.forgerock.openam.session.SessionConstants.*;
+import static org.forgerock.openam.utils.Time.*;
+
 import com.iplanet.am.util.SystemProperties;
 import com.iplanet.dpro.session.Session;
 import com.iplanet.dpro.session.SessionEvent;
@@ -526,7 +528,10 @@ public class SessionService {
      * @return a boolean
      */
     public boolean checkSessionLocal(SessionID sid) throws SessionException {
-        if (isSessionPresent(sid)) {
+        if (statelessSessionFactory.containsJwt(sid)) {
+            // Stateless sessions are not stored in memory and so are not local to any server.
+            return false;
+        } else if (isSessionPresent(sid)) {
             return true;
         } else {
             if (serviceConfig.isSessionFailoverEnabled()) {
@@ -665,7 +670,7 @@ public class SessionService {
         }
 
         try {
-            long startTime = System.currentTimeMillis();
+            long startTime = currentTimeMillis();
 
             pattern = pattern.toLowerCase();
             List<InternalSession> allValidSessions = getValidInternalSessions();
@@ -696,7 +701,7 @@ public class SessionService {
                 }
                 sessions.add(sess);
 
-                if ((System.currentTimeMillis() - startTime) >=
+                if ((currentTimeMillis() - startTime) >=
                         serviceConfig.getSessionRetrievalTimeout()) {
                     status[0] = IdSearchResults.TIME_LIMIT_EXCEEDED;
                     break;
