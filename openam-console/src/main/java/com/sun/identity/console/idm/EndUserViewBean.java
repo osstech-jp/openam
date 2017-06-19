@@ -34,12 +34,14 @@ import com.iplanet.jato.RequestManager;
 import com.iplanet.jato.view.event.DisplayEvent;
 import com.iplanet.sso.SSOException;
 import com.sun.identity.console.base.AuthenticatedViewBean;
+import com.sun.identity.console.base.model.AMAdminConstants;
 import com.sun.identity.console.base.model.AMModel;
 import com.sun.identity.console.idm.model.EntitiesModel;
 import com.sun.identity.console.idm.model.EntitiesModelImpl;
 import com.sun.identity.idm.AMIdentity;
 import com.sun.identity.idm.IdRepoException;
 import com.sun.identity.idm.IdUtils;
+import com.sun.identity.sm.DNMapper;
 import com.sun.web.ui.model.CCPageTitleModel;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
@@ -80,7 +82,10 @@ public class EndUserViewBean
                     amid.getName());
                 setPageSessionAttribute(EntityOpViewBeanBase.ENTITY_TYPE,
                         amid.getType().getName());
-                 Set agentTypes = amid.getAttribute("AgentType");
+                String realm = DNMapper.orgNameToRealmName(amid.getRealm());
+                setPageSessionAttribute(AMAdminConstants.CURRENT_REALM,
+                    realm);
+                Set agentTypes = amid.getAttribute("AgentType");
                 if ((agentTypes != null) && !agentTypes.isEmpty()) {
                     setPageSessionAttribute(
                         EntityOpViewBeanBase.ENTITY_AGENT_TYPE,
