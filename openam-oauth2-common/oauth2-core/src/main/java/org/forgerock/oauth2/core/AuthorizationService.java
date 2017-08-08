@@ -18,6 +18,7 @@ package org.forgerock.oauth2.core;
 
 import org.forgerock.oauth2.core.exceptions.AccessDeniedException;
 import org.forgerock.oauth2.core.exceptions.BadRequestException;
+import org.forgerock.oauth2.core.exceptions.CsrfException;
 import org.forgerock.oauth2.core.exceptions.InteractionRequiredException;
 import org.forgerock.oauth2.core.exceptions.InvalidClientException;
 import org.forgerock.oauth2.core.exceptions.InvalidRequestException;
@@ -117,9 +118,11 @@ public interface AuthorizationService {
      * @throws IllegalArgumentException If the request is missing any required parameters.
      * @throws InvalidScopeException If the requested scope is invalid, unknown, or malformed.
      * @throws NotFoundException If the realm does not have an OAuth 2.0 provider service.
+     * @throws CsrfException If an CSRF attack is detected.
      */
     AuthorizationToken authorize(OAuth2Request request, boolean consentGiven, boolean saveConsent)
             throws AccessDeniedException, ResourceOwnerAuthenticationRequired, InvalidClientException,
             UnsupportedResponseTypeException, InvalidRequestException, RedirectUriMismatchException, ServerException,
-            LoginRequiredException, BadRequestException, InteractionRequiredException, InvalidScopeException, NotFoundException;
+            LoginRequiredException, BadRequestException, InteractionRequiredException,
+            InvalidScopeException, NotFoundException, CsrfException;
 }

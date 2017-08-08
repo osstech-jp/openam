@@ -30,6 +30,7 @@ import org.forgerock.guava.common.collect.Maps;
 import org.forgerock.oauth2.core.exceptions.AccessDeniedException;
 import org.forgerock.oauth2.core.exceptions.BadRequestException;
 import org.forgerock.oauth2.core.exceptions.ClientAuthenticationFailureFactory;
+import org.forgerock.oauth2.core.exceptions.CsrfException;
 import org.forgerock.oauth2.core.exceptions.InteractionRequiredException;
 import org.forgerock.oauth2.core.exceptions.InvalidClientException;
 import org.forgerock.oauth2.core.exceptions.InvalidRequestException;
@@ -63,6 +64,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     private final ClientRegistrationStore clientRegistrationStore;
     private final AuthorizationTokenIssuer tokenIssuer;
     private final ClientAuthenticationFailureFactory failureFactory;
+    private final CsrfProtection csrfProtection;
 
     /**
      * Constructs a new AuthorizationServiceImpl.
@@ -73,13 +75,14 @@ public class AuthorizationServiceImpl implements AuthorizationService {
      * @param clientRegistrationStore An instance of the ClientRegistrationStore.
      * @param tokenIssuer An instance of the AuthorizationTokenIssuer.
      * @param failureFactory The factory which creates ClientExceptions
+     * @param csrfProtection An instance of the CsrfProtection.
      */
     @Inject
     public AuthorizationServiceImpl(List<AuthorizeRequestValidator> requestValidators,
             ResourceOwnerSessionValidator resourceOwnerSessionValidator,
             OAuth2ProviderSettingsFactory providerSettingsFactory, ResourceOwnerConsentVerifier consentVerifier,
             ClientRegistrationStore clientRegistrationStore, AuthorizationTokenIssuer tokenIssuer,
-            ClientAuthenticationFailureFactory failureFactory) {
+            ClientAuthenticationFailureFactory failureFactory, CsrfProtection csrfProtection) {
         this.requestValidators = requestValidators;
         this.resourceOwnerSessionValidator = resourceOwnerSessionValidator;
         this.providerSettingsFactory = providerSettingsFactory;
@@ -87,6 +90,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         this.clientRegistrationStore = clientRegistrationStore;
         this.tokenIssuer = tokenIssuer;
         this.failureFactory = failureFactory;
+        this.csrfProtection = csrfProtection;
     }
 
     /**
@@ -193,9 +197,15 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     public AuthorizationToken authorize(OAuth2Request request, boolean consentGiven, boolean saveConsent)
             throws AccessDeniedException, ResourceOwnerAuthenticationRequired, InvalidClientException,
             UnsupportedResponseTypeException, InvalidRequestException, RedirectUriMismatchException, ServerException,
-            LoginRequiredException, BadRequestException, InteractionRequiredException, InvalidScopeException, NotFoundException {
+            LoginRequiredException, BadRequestException, InteractionRequiredException, 
+            InvalidScopeException, NotFoundException, CsrfException {
 
         final OAuth2ProviderSettings providerSettings = providerSettingsFactory.get(request);
+
+        if (csrfProtection.isCsrfAttack(request)) {
+            logger.debug("Session id from consent request does not match users session");
+            throw new CsrfException();
+        }
 
         for (final AuthorizeRequestValidator requestValidator : requestValidators) {
             requestValidator.validateRequest(request);

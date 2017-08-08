@@ -23,6 +23,7 @@ import org.forgerock.oauth2.core.AuthorizationService;
 import org.forgerock.oauth2.core.AuthorizationToken;
 import org.forgerock.oauth2.core.OAuth2Request;
 import org.forgerock.oauth2.core.OAuth2RequestFactory;
+import org.forgerock.oauth2.core.exceptions.CsrfException;
 import org.forgerock.oauth2.core.exceptions.InvalidClientException;
 import org.forgerock.oauth2.core.exceptions.OAuth2Exception;
 import org.forgerock.oauth2.core.exceptions.RedirectUriMismatchException;
@@ -174,6 +175,9 @@ public class AuthorizeResource extends ConsentRequiredResource {
                     request.<String>getParameter("state"));
         } catch (RedirectUriMismatchException e) {
             throw new OAuth2RestletException(e.getStatusCode(), e.getError(), e.getMessage(),
+                    request.<String>getParameter("state"));
+        } catch (CsrfException e) {
+            throw new OAuth2RestletException(400, "bad_request", e.getMessage(),
                     request.<String>getParameter("state"));
         } catch (OAuth2Exception e) {
             throw new OAuth2RestletException(e.getStatusCode(), e.getError(), e.getMessage(),
