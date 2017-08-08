@@ -59,6 +59,7 @@ require([
     "jquery",
     "underscore",
     "handlebars",
+    "org/forgerock/openam/ui/user/oauth2/OAuth2ConsentPageHelper",
     "org/forgerock/commons/ui/common/main/Configuration",
     "org/forgerock/openam/ui/common/util/Constants",
     "text!templates/user/AuthorizeTemplate.html",
@@ -68,7 +69,7 @@ require([
     "org/forgerock/commons/ui/common/main/i18nManager",
     "ThemeManager",
     "Router"
-], function ($, _, HandleBars, Configuration, Constants, AuthorizeTemplate,
+], function ($, _, HandleBars, OAuth2ConsentPageHelper, Configuration, Constants, AuthorizeTemplate,
             LoginBaseTemplate, FooterTemplate, LoginHeaderTemplate, i18nManager, ThemeManager, Router) {
 
     // Helpers for the code that hasn't been properly migrated to require these as explicit dependencies:
@@ -81,7 +82,8 @@ require([
         loginHeaderTemplate,
         data = window.pageData || {},
         KEY_CODE_ENTER = 13,
-        KEY_CODE_SPACE = 32;
+        KEY_CODE_SPACE = 32,
+        dataReady = $.Deferred();
 
     i18nManager.init({
         paramLang: {
@@ -110,35 +112,40 @@ require([
             data.noScopes = true;
         }
 
+        OAuth2ConsentPageHelper.getUserSessionId().then(function (userSessionId) {
+            data.oauth2Data.csrf = userSessionId;
+            dataReady.resolve();
+        });
     } else {
         data.noScopes = true;
+        dataReady.resolve();
     }
 
-    Configuration.globalData = { realm : data.realm };
+    dataReady.then(function () {
+        Configuration.globalData = { realm : data.realm };
 
-    Router.currentRoute = {
-        navGroup: "user"
-    };
+        Router.currentRoute = {
+            navGroup: "user"
+        };
 
-    ThemeManager.getTheme().always(function (theme) {
-        data.theme = theme;
-        baseTemplate = HandleBars.compile(LoginBaseTemplate);
-        formTemplate = HandleBars.compile(AuthorizeTemplate);
-        footerTemplate = HandleBars.compile(FooterTemplate);
-        loginHeaderTemplate = HandleBars.compile(LoginHeaderTemplate);
+        ThemeManager.getTheme().always(function (theme) {
+            data.theme = theme;
+            baseTemplate = HandleBars.compile(LoginBaseTemplate);
+            formTemplate = HandleBars.compile(AuthorizeTemplate);
+            footerTemplate = HandleBars.compile(FooterTemplate);
+            loginHeaderTemplate = HandleBars.compile(LoginHeaderTemplate);
 
-        $("#wrapper").html(baseTemplate(data));
-        $("#footer").html(footerTemplate(data));
-        $("#loginBaseLogo").html(loginHeaderTemplate(data));
-        $("#content").html(formTemplate(data)).find(".panel-heading").bind("click keyup", function (e) {
-            // keyup is required so that the collasped panel can be opened with the keyboard alone,
-            // and without relying on a mouse click event.
-            if (e.type === "keyup" && e.keyCode !== KEY_CODE_ENTER && e.keyCode !== KEY_CODE_SPACE) {
-                return;
-            }
-            $(this).toggleClass("expanded").next(".panel-collapse").slideToggle();
+            $("#wrapper").html(baseTemplate(data));
+            $("#footer").html(footerTemplate(data));
+            $("#loginBaseLogo").html(loginHeaderTemplate(data));
+            $("#content").html(formTemplate(data)).find(".panel-heading").bind("click keyup", function (e) {
+                // keyup is required so that the collasped panel can be opened with the keyboard alone,
+                // and without relying on a mouse click event.
+                if (e.type === "keyup" && e.keyCode !== KEY_CODE_ENTER && e.keyCode !== KEY_CODE_SPACE) {
+                    return;
+                }
+                $(this).toggleClass("expanded").next(".panel-collapse").slideToggle();
+            });
         });
-
     });
-
 });

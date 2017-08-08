@@ -67,9 +67,11 @@ public class AuthorizationServiceImplTest {
         clientRegistrationStore = mock(ClientRegistrationStore.class);
         tokenIssuer = mock(AuthorizationTokenIssuer.class);
         ClientAuthenticationFailureFactory failureFactory = mock(ClientAuthenticationFailureFactory.class);
+        CsrfProtection csrfProtection = mock(CsrfProtection.class);
 
         authorizationService = new AuthorizationServiceImpl(requestValidators, resourceOwnerSessionValidator,
-                providerSettingsFactory, resourceOwnerConsentVerifier, clientRegistrationStore, tokenIssuer, failureFactory);
+                providerSettingsFactory, resourceOwnerConsentVerifier, clientRegistrationStore, tokenIssuer, 
+                failureFactory, csrfProtection);
 
         providerSettings = mock(OAuth2ProviderSettings.class);
         given(providerSettingsFactory.get(Matchers.<OAuth2Request>anyObject())).willReturn(providerSettings);

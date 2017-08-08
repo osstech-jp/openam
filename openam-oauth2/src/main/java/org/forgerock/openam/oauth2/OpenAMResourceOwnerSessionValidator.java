@@ -137,21 +137,7 @@ public class OpenAMResourceOwnerSessionValidator implements ResourceOwnerSession
             throw new BadRequestException(message);
         }
 
-        SSOToken token = null;
-        try {
-            token = ssoTokenManager.createSSOToken(getHttpServletRequest(request.<Request>getRequest()));
-        } catch (SSOException e) {
-            logger.warning("Error authenticating user against OpenAM: ", e);
-        }
-
-        try {
-            if (token == null) {
-                token = ssoTokenManager.createSSOToken(request.getSession());
-            }
-        } catch (SSOException e) {
-            logger.warning("Error authenticating user against OpenAM: ", e);
-        }
-
+        SSOToken token = getResourceOwnerSession(request);
         try {
             if (token != null) {
                 try {
@@ -219,6 +205,24 @@ public class OpenAMResourceOwnerSessionValidator implements ResourceOwnerSession
         } catch (SSOException | UnsupportedEncodingException | URISyntaxException e) {
             throw new AccessDeniedException(e);
         }
+    }
+
+    @Override
+    public SSOToken getResourceOwnerSession(OAuth2Request request) {
+        SSOToken token = null;
+        try {
+            token = ssoTokenManager.createSSOToken(getHttpServletRequest(request.<Request>getRequest()));
+        } catch (SSOException e) {
+            logger.warning("Error authenticating user against OpenAM: ", e);
+        }
+        try {
+            if (token == null) {
+                token = ssoTokenManager.createSSOToken(request.getSession());
+            }
+        } catch (SSOException e) {
+            logger.warning("Error authenticating user against OpenAM: ", e);
+        }
+        return token;
     }
 
     private ResourceOwner getResourceOwner(IntrospectableToken token) {

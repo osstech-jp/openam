@@ -12,6 +12,7 @@
 * information: "Portions copyright [year] [name of copyright owner]".
 *
 * Copyright 2015-2016 ForgeRock AS.
+* Portions Copyrighted 2017 Open Source Solution Technology Corporation
 */
 package org.forgerock.openam.rest.audit;
 
@@ -25,6 +26,7 @@ import org.forgerock.oauth2.core.exceptions.ServerException;
 import org.forgerock.openam.audit.AuditConstants.TrackingIdKey;
 import org.restlet.Request;
 import org.restlet.data.ChallengeResponse;
+import org.restlet.data.ChallengeScheme;
 
 import static org.forgerock.openam.audit.AuditConstants.TrackingIdKey.OAUTH2_ACCESS;
 
@@ -149,6 +151,11 @@ public class OAuth2AuditAccessTokenContextProvider extends OAuth2AuditOAuth2Toke
         ChallengeResponse challengeResponse = request.getChallengeResponse();
 
         if (challengeResponse == null) {
+            return null;
+        }
+
+        ChallengeScheme scheme = challengeResponse.getScheme();
+        if (scheme == null || !scheme.equals(ChallengeScheme.HTTP_OAUTH_BEARER)) {
             return null;
         }
 

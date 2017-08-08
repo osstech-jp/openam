@@ -16,6 +16,7 @@
 
 package org.forgerock.oauth2.core;
 
+import com.iplanet.sso.SSOToken;
 import org.forgerock.oauth2.core.exceptions.AccessDeniedException;
 import org.forgerock.oauth2.core.exceptions.BadRequestException;
 import org.forgerock.oauth2.core.exceptions.InteractionRequiredException;
@@ -49,4 +50,13 @@ public interface ResourceOwnerSessionValidator {
      */
     ResourceOwner validate(OAuth2Request request) throws ResourceOwnerAuthenticationRequired, AccessDeniedException,
             BadRequestException, InteractionRequiredException, LoginRequiredException, ServerException, NotFoundException;
+
+    /**
+     * Gets the resource owner's session from the OAuth2 request.
+     *
+     * @param request The OAuth2 request.
+     * @return The resource owner's {@code SSOToken}.
+     */
+    public SSOToken getResourceOwnerSession(OAuth2Request request);
+
 }
